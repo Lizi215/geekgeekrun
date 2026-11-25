@@ -205,6 +205,7 @@ export async function saveJobInfoFromRecommendPage(ds: DataSource, _jobInfo) {
     salaryHigh: jobSalary.high,
     salaryLow: jobSalary.low,
     salaryMonth: jobSalary.month,
+    salaryDesc: jobInfo.salaryDesc ?? null,
   };
 
   Object.assign(job, jobUpdatePayload);

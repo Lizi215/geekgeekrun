@@ -40,6 +40,9 @@ export class VMarkAsNotSuitLog {
   salaryMonth: number | null;
 
   @ViewColumn()
+  salaryDesc: string | null;
+
+  @ViewColumn()
   experienceName: number | null;
 
   @ViewColumn()

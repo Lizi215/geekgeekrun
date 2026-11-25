@@ -27,6 +27,11 @@ export class JobInfo {
   })
   salaryMonth?: number;
 
+  @Column({
+    nullable: true
+  })
+  salaryDesc?: string | null;
+
   @Column()
   experienceName: string;
 

@@ -36,6 +36,9 @@ export class VChatStartupLog {
   salaryMonth: number | null;
 
   @ViewColumn()
+  salaryDesc: string | null;
+
+  @ViewColumn()
   experienceName: number | null;
 
   @ViewColumn()
