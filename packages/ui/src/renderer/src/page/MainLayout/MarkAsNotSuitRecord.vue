@@ -61,8 +61,10 @@
             label="薪资"
             :formatter="
               (row, _col, _val) =>
-                `${row.salaryLow}-${row.salaryHigh}k` +
-                (row.salaryMonth ? `* ${row.salaryMonth}薪` : '')
+                row.salaryDesc
+                  ? row.salaryDesc + (row.salaryMonth ? ` * ${row.salaryMonth}薪` : '')
+                  : `${row.salaryLow}-${row.salaryHigh}k` +
+                    (row.salaryMonth ? `* ${row.salaryMonth}薪` : '')
             "
           />
           <ElTableColumn label="职位信息" fixed="right" :width="120">
