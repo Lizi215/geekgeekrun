@@ -681,7 +681,7 @@
             <div class="h-1px bg-#f0f0f0" mt16px mb16px />
             <div mt16px>
               <div font-size-14px mb8px>
-                薪资（仅支持按月计算薪资的职位；非按月计算薪资职位（例如兼职职位、实习职位）将直接跳过）
+                薪资（仅对按月计算薪资的职位生效；兼职、实习等非按月薪资职位不受此筛选限制，会按其他条件正常匹配）
               </div>
               <div
                 :style="{
@@ -1102,7 +1102,7 @@
             </div>
             <div class="h-1px bg-#f0f0f0" mt16px mb16px />
             <div mt16px>
-              <div font-size-14px mb8px>工作经验（暂不支持按日计算薪资的实习类职位）</div>
+              <div font-size-14px mb8px>工作经验</div>
               <div
                 :style="{
                   display: 'flex',
@@ -1131,7 +1131,6 @@
                           v-if="!!op.code"
                           :label="op.name"
                           :value="op.name"
-                          :disabled="op.code === 108 || op.name === '在校生'"
                         >
                           {{ op.name }}</el-option
                         >
@@ -1950,9 +1949,9 @@ electron.ipcRenderer.invoke('fetch-config-file-content').then((res) => {
     res.config['boss.json'].expectWorkExpList.length
       ? res.config['boss.json'].expectWorkExpList
       : []
-  const s = new Set([...(formContent.value?.expectWorkExpList ?? [])])
-  s.delete('在校生')
-  formContent.value.expectWorkExpList = [...s]
+  formContent.value.expectWorkExpList = Array.isArray(res.config['boss.json'].expectWorkExpList)
+    ? [...res.config['boss.json'].expectWorkExpList]
+    : []
   formContent.value.expectWorkExpNotMatchStrategy =
     res.config['boss.json'].expectWorkExpNotMatchStrategy ?? MarkAsNotSuitOp.NO_OP
   formContent.value.strategyScopeOptionWhenMarkJobWorkExpNotMatch =
