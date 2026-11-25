@@ -179,6 +179,19 @@ if (
 }
 expectWorkExpList = Array.from(expectWorkExpListSet)
 
+// 实习岗的经验字段是 "X天/周 X个月" 这种工作时长格式，并不代表真实的经验要求。
+// 这类岗位等价于"在校/应届"：仅当用户期望经验包含"在校/应届"时才视为匹配，
+// 否则（例如只想要 1-3 年经验）仍按不匹配处理。
+function isInternshipWorkExp (workExp) {
+  return typeof workExp === 'string' && /\d+\s*天\s*\/\s*周/.test(workExp)
+}
+function isJobWorkExpSuit (jobExperience) {
+  if (expectWorkExpListSet.has('在校/应届') && isInternshipWorkExp(jobExperience)) {
+    return true
+  }
+  return expectWorkExpListSet.has(jobExperience)
+}
+
 const expectWorkExpNotMatchStrategy = readConfigFile('boss.json').expectWorkExpNotMatchStrategy ?? MarkAsNotSuitOp.NO_OP
 const strategyScopeOptionWhenMarkJobWorkExpNotMatch = readConfigFile('boss.json').strategyScopeOptionWhenMarkJobWorkExpNotMatch ?? StrategyScopeOptionWhenMarkJobNotMatch.ONLY_COMPANY_MATCHED_JOB
 
@@ -374,7 +387,19 @@ async function markJobAsNotSuitInRecommendPage (reasonCode) {
           }
           break
         }
-        case MarkAsNotSuitReason.JOB_WORK_EXP_NOT_SUIT:
+        case MarkAsNotSuitReason.JOB_WORK_EXP_NOT_SUIT: {
+          const opProxy = (await chooseReasonDialogProxy.$(`.zp-type-item[title*="工作经验不匹配"]`))
+            ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title$="城市"]`))
+            ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title*="距离"]`))
+            ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title*="公司"]`))
+            ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title="面试过/入职过"]`))
+            ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title="重复推荐"]`))
+          if (opProxy) {
+            await opProxy.click()
+            isOptionChosen = true
+          }
+          break
+        }
         case MarkAsNotSuitReason.JOB_CITY_NOT_SUIT: {
           const opProxy = (await chooseReasonDialogProxy.$(`.zp-type-item[title$="城市"]`))
             ?? (await chooseReasonDialogProxy.$(`.zp-type-item[title*="距离"]`))
@@ -1070,7 +1095,7 @@ async function toRecommendPage (hooks) {
                             MarkAsNotSuitOp.MARK_AS_NOT_SUIT_ON_LOCAL
                           ].includes(expectWorkExpNotMatchStrategy) &&
                           strategyScopeOptionWhenMarkJobWorkExpNotMatch === StrategyScopeOptionWhenMarkJobNotMatch.ALL_JOB
-                        ) ? !expectWorkExpList.includes(it.jobExperience) : false
+                        ) ? !isJobWorkExpSuit(it.jobExperience) : false
                       ) || (
                         // enter job detail to mark as not suit for salary filter
                         (
@@ -1464,7 +1489,7 @@ async function toRecommendPage (hooks) {
                     notSuitReasonIdToStrategyMap.city = expectCityNotMatchStrategy
                   }
                   if (
-                    (Array.isArray(expectWorkExpList) && expectWorkExpList.length) && !expectWorkExpList.includes(selectedJobData.jobExperience)
+                    (Array.isArray(expectWorkExpList) && expectWorkExpList.length) && !isJobWorkExpSuit(selectedJobData.jobExperience)
                   ) {
                     notSuitReasonIdToStrategyMap.workExp = expectWorkExpNotMatchStrategy
                   }
