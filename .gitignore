@@ -1,4 +1,6 @@
 node_modules
 database.sqlite
 .env.local
-
+.chatcode
+.idea
+.pnpm-store
